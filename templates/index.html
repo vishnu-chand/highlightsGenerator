@@ -1,0 +1,45 @@
+{% from "_helpers.html" import render_field, render_flash %}
+
+<html>
+<head>
+<title>Highlights Generator</title>
+</head>
+<body>
+    <h2 style = "text-align: center;">Highlights Generator</h2>
+    {{render_flash()}}
+    <span class="label info">Processing will take a while, avoid refresh</span>
+    <fieldset>
+            <legend>Inputs</legend>
+            <form method="POST" action="{{ url_for('index') }}">
+                <div style = font-size:20px; font-weight:bold; margin-left:150px;><dl>
+                {{ form.hidden_tag() }}
+                {{ form.csrf_token }}
+                {{ render_field(form.url) }}
+                {{ render_field(form.start) }}
+                {{ render_field(form.stop) }}
+                    <ul><input type="submit" value="Generate Highlights"></ul>
+                </dl></div>
+            </form>
+    </fieldset>
+
+
+    <fieldset>
+        <legend>Highlights</legend>
+        {% for highlight, videoId, startSeconds, endSeconds in clips %}
+            <button  style="width:20%" onclick="highlight(videoId='{{videoId}}', startSeconds={{startSeconds}}, endSeconds={{endSeconds}})">{{highlight}}</button>
+        {% endfor %}
+    </fieldset>
+
+    <fieldset>
+        <legend>Video</legend>
+        {% if clips %}
+            <div id="video-placeholder"> </div>
+        {% endif %}
+    </fieldset>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
