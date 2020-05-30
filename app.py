@@ -66,7 +66,7 @@ class ArgsForm(FlaskForm):
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     form = ArgsForm()
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' and form.validate():
         clips, nRequest, url, cachePath = None, 0, request.form['url'], f"{app.config['UPLOAD_FOLDER']}/cache.pkl"
         try:
             start, stop = int(request.form['start']), int(request.form['stop'])
@@ -102,4 +102,4 @@ if __name__ == '__main__':
     # app.run(threaded=True, port=4378)
     # app.run(threaded=True, port=4378, debug=True)
     from waitress import serve
-    serve(app)
+    serve(app, port=4378)
