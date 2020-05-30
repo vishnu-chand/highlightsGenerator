@@ -99,7 +99,7 @@ def index():
 
 
 if __name__ == '__main__':
-    # app.run(threaded=True, port=4378, host='127.23.0.1')
+    app.run(threaded=True, port=4378, host='127.23.0.1')
     # app.run(threaded=True, port=4378, debug=True)
-    from waitress import serve
-    serve(app, host='127.0.0.1', port=4378)
+    # from waitress import serve
+    # serve(app, host='127.0.0.1', port=4378)
