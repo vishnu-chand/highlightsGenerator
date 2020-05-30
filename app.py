@@ -16,6 +16,7 @@ from youtube_dl import YoutubeDL
 https://www.youtube.com/watch?v=jPfeLG2fPeU
 https://www.youtube.com/watch?v=i0RrKolSMgw&t=91s
 https://www.youtube.com/watch?v=QD2hxpQd_b0&t=232s
+https://www.youtube.com/watch?v=EgWqoWG5V80
 '''
 
 app = Flask(__name__)
@@ -42,13 +43,14 @@ def getMeta(url):
             vinfo = ydl.extract_info(url, download=False)
         except:
             vinfo = {}
-    vid, vfmt = vinfo.get("id"), None
+    vid, isLongVideo, vfmt = vinfo.get("id"), False, None
     if vid:
         try:
             vfmt = vinfo['formats'][0]['format_id']
+            isLongVideo = vinfo.get('duration') > 720
         except:
             pass
-    return vid, vinfo.get('duration') > 720, vfmt
+    return vid, isLongVideo, vfmt
 
 
 class ArgsForm(FlaskForm):
@@ -66,7 +68,8 @@ def index():
     form = ArgsForm()
     if request.method == 'POST' and form.validate_on_submit():
         clips, nRequest, url, cachePath = None, 0, request.form['url'], f"{app.config['UPLOAD_FOLDER']}/cache.pkl"
-        try:
+        if 1:
+        # try:
             start, stop = int(request.form['start']), int(request.form['stop'])
             vid, isLongVideo, vfmt = getMeta(url)
             if isLongVideo:
@@ -89,8 +92,8 @@ def index():
                         pickle.dump(jdata, book)
             if not clips:
                 flash(f'Sorry!! process failed with "{url}". Try different url...')
-        except:
-            flash("Sorry!!, server busy not able to process your request now...")
+        # except:
+        #     flash("Sorry!!, server busy not able to process your request now...")
         return render_template("index.html", form=form, clips=clips or [])
     return render_template("index.html", form=form)
 
