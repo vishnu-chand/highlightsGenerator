@@ -68,8 +68,7 @@ def index():
     form = ArgsForm()
     if request.method == 'POST' and form.validate_on_submit():
         clips, nRequest, url, cachePath = None, 0, request.form['url'], f"{app.config['UPLOAD_FOLDER']}/cache.pkl"
-        if 1:
-        # try:
+        try:
             start, stop = int(request.form['start']), int(request.form['stop'])
             vid, isLongVideo, vfmt = getMeta(url)
             if isLongVideo:
@@ -92,8 +91,9 @@ def index():
                         pickle.dump(jdata, book)
             if not clips:
                 flash(f'Sorry!! process failed with "{url}". Try different url...')
-        # except:
-        #     flash("Sorry!!, server busy not able to process your request now...")
+        except:
+            flash("Sorry!!, server busy not able to process your request now...")
+        form.url.data = None
         return render_template("index.html", form=form, clips=clips or [])
     return render_template("index.html", form=form)
 
@@ -102,4 +102,4 @@ if __name__ == '__main__':
     # app.run(threaded=True, port=4378)
     # app.run(threaded=True, port=4378, debug=True)
     from waitress import serve
-    serve(app, port=4378)
+    serve(app)
