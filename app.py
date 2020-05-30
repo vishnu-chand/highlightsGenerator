@@ -70,21 +70,25 @@ def index():
         clips, nRequest, url, cachePath = None, 0, request.form['url'], f"{app.config['UPLOAD_FOLDER']}/cache.pkl"
         try:
             start, stop = int(request.form['start']), int(request.form['stop'])
-            vid, isLongVideo, vfmt = getMeta(url)
-            if isLongVideo:
-                flash('Pass video less than 10 min')
-                vfmt = None
-            if vfmt:
-                with open(cachePath, 'rb') as book:
-                    jdata = pickle.load(book)
-                vdata = jdata.get(f'{vid}_{start}_{stop}')
+            with open(cachePath, 'rb') as book:
+                jdata = pickle.load(book)
+            vdata = getCache(url, start, stop, jdata, vid=None)
+            if vdata:
+                clips, nRequest = vdata
+            else:
+                vid, isLongVideo, vfmt = getMeta(url)
+                vdata = getCache(url, start, stop, jdata, vid=vid)
                 if vdata:
                     clips, nRequest = vdata
-                else:
-                    vpath = downloadVideo(url, vid, vfmt)
-                    if vpath:
-                        clips = getHighlights(vpath, vid, start, stop, 3)
-                        os.remove(vpath)
+                else:                    
+                    if isLongVideo:
+                        flash('Pass video less than 10 min')
+                        vfmt = None
+                    if vfmt:
+                        vpath = downloadVideo(url, vid, vfmt)
+                        if vpath:
+                            clips = getHighlights(vpath, vid, start, stop, 3)
+                            os.remove(vpath)
                 if clips is not None:
                     jdata[f'{vid}_{start}_{stop}'] = [clips, nRequest + 1]
                     with open(cachePath, 'wb') as book:
@@ -96,6 +100,16 @@ def index():
         form.url.data = None
         return render_template("index.html", form=form, clips=clips or [])
     return render_template("index.html", form=form)
+
+
+def getCache(url, start, stop, jdata, vid):
+    try:
+        if vid is None:
+            vid = url.split('/')[-1].split('v=')[-1]
+        vdata = jdata.get(f'{vid}_{start}_{stop}')
+    except:
+        vdata = None
+    return vdata
 
 
 if __name__ == '__main__':
